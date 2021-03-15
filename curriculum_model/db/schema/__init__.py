@@ -1,4 +1,5 @@
 # coding: utf-8
+"""Tables used in the curriculum model. Other key schema objects are stored in sub-modules. """
 from sqlalchemy import CHAR, Column, DECIMAL, Date, BOOLEAN, DateTime, Float, ForeignKey, Index, Integer, LargeBinary, NCHAR, String, Table, Unicode, text
 from sqlalchemy.ext.declarative import declarative_base
 
