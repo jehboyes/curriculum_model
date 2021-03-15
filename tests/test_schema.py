@@ -17,6 +17,7 @@ class TestSchema(unittest.TestCase):
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
         schema.Base.metadata.create_all(self.engine)
+        from curriculum_model.db.schema import views
 
 
 class TestTables(unittest.TestCase):

@@ -1,5 +1,8 @@
 """Views useful to other applications"""
 from curriculum_model.db.schema import metadata
+from sqlalchemy import BigInteger, CHAR, Column, DECIMAL, Date, DateTime, Float, ForeignKey, Index, Integer, LargeBinary, NCHAR, Numeric, String, Table, Unicode, text
+from sqlalchemy.dialects.mssql import BIT, SQL_VARIANT
+
 
 # Student numbers and gross fee income
 FeeIncomeInputCostc = Table(
@@ -26,13 +29,13 @@ CurriculumEnrolsForAppTotal = Table(
 # User friendly pivot of student numbers by costcentre, usage and year
 SNInterfacePivot = Table(
     'vSNInterfacePivot', metadata,
-    Column('primary_costc', CHAR(6, 'Latin1_General_CI_AS')),
+    Column('primary_costc', CHAR(6)),
     Column('acad_year', Integer),
-    Column('usage_id', String(20, 'Latin1_General_CI_AS'), nullable=False),
-    Column('primary_aos_code', CHAR(6, 'Latin1_General_CI_AS')),
-    Column('fee_status', String(1, 'Latin1_General_CI_AS'), nullable=False),
-    Column('set_cat_id', CHAR(3, 'Latin1_General_CI_AS'), nullable=False),
-    Column('o_type', String(50, 'Latin1_General_CI_AS'), nullable=False),
+    Column('usage_id', String(20), nullable=False),
+    Column('primary_aos_code', CHAR(6)),
+    Column('fee_status', String(1), nullable=False),
+    Column('set_cat_id', CHAR(3), nullable=False),
+    Column('o_type', String(50), nullable=False),
     Column('Year 0', DECIMAL(38, 5)),
     Column('Year 1', DECIMAL(38, 5)),
     Column('Year 2', DECIMAL(38, 5)),
