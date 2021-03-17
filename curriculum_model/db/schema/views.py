@@ -20,7 +20,7 @@ FeeIncomeInputCostc = Table(
 
 # Hours of curriculum delivery
 CurriculumHours = Table(
-    'v_fm_curriculum_hours', metadata,
+    'v_fm_curriculum_total', metadata,
     Column('usage_id', String(20)),
     Column('acad_year', Integer()),
     Column('curriculum_id', Integer()),
