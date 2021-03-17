@@ -19,11 +19,13 @@ FeeIncomeInputCostc = Table(
 )
 
 # Hours of curriculum delivery
-CurriculumEnrolsForAppTotal = Table(
-    'vCurriculumEnrolsForAppTotal', metadata,
-    Column('curriculum_id', Integer),
+CurriculumHours = Table(
+    'v_fm_curriculum_hours', metadata,
+    Column('usage_id', String(20)),
+    Column('acad_year', Integer()),
+    Column('curriculum_id', Integer()),
     Column('costc', CHAR(6)),
-    Column('hours', Float(53))
+    Column('hours', DECIMAL(20, 10))
 )
 
 # User friendly pivot of student numbers by costcentre, usage and year
