@@ -20,12 +20,23 @@ FeeIncomeInputCostc = Table(
 
 # Hours of curriculum delivery
 CurriculumHours = Table(
-    'v_fm_curriculum_total', metadata,
+    'v_fm_curriculum_hours', metadata,
     Column('usage_id', String(20)),
     Column('acad_year', Integer()),
     Column('curriculum_id', Integer()),
     Column('costc', CHAR(6)),
     Column('hours', DECIMAL(20, 10))
+)
+
+# Nonpay from curriculum delivery
+CurriculumNonPay = Table(
+    'v_fm_curriculum_nonpay', metadata,
+    Column('usage_id', String(20)),
+    Column('acad_year', Integer()),
+    Column('curriculum_id', Integer()),
+    Column('costc', CHAR(6)),
+    Column('account', CHAR(4)),
+    Column('amount', DECIMAL(20, 10))
 )
 
 # User friendly pivot of student numbers by costcentre, usage and year

@@ -465,6 +465,7 @@ class Cost(Base):
     notes = Column(String(8000))
     number_of_staff = Column(DECIMAL(5, 2))
     tt_type = Column(Integer, server_default=text("((1))"))
+    unit_cost = Column(Integer, nullable=False, server_default='0')
 
 
 class CostWeek(Base):
