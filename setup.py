@@ -16,5 +16,9 @@ setuptools.setup(
     description="Modelling HE curriculum delivery.",
     long_description=long_description,
     url="https://github.com/jehboyes/curriculum_model",
-    packages=setuptools.find_packages()
+    packages=setuptools.find_packages(),
+        entry_points='''
+        [console_scripts]
+        cm=curriculum_model.cli:cm
+    ''',
 )
