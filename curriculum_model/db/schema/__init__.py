@@ -1,6 +1,7 @@
 # coding: utf-8
 """Tables used in the curriculum model. Other key schema objects are stored in sub-modules. """
 from sqlalchemy import CHAR, Column, DECIMAL, Date, BOOLEAN, DateTime, Float, ForeignKey, Index, Integer, LargeBinary, NCHAR, String, Table, Unicode, text
+from sqlalchemy.dialects.mssql import BIT
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -22,8 +23,8 @@ class aos_code(Base):
     fee_cat_id = Column(String(20))
     department_id = Column(NCHAR(3))
     pathway = Column(String(50))
-    valid_for_projection = Column(BOOLEAN())
-    require_foundation = Column(BOOLEAN())
+    valid_for_projection = Column(BIT())
+    require_foundation = Column(BIT())
 
 
 t_audit_cgroup = Table(
@@ -44,7 +45,7 @@ t_audit_component = Table(
     Column('description', Unicode(200)),
     Column('module_code', String(9)),
     Column('calendar_type', Unicode(20)),
-    Column('coordination_eligible', BOOLEAN),
+    Column('coordination_eligible', BIT),
     Column('hecos', Integer),
     Column('staffing_band', Integer),
     Column('curriculum_id', Integer),
@@ -138,18 +139,18 @@ class CostType(Base):
     cost_type = Column(String(20), primary_key=True)
     cost_multiplier = Column(Float(53), nullable=False,
                              server_default=text("((1))"))
-    is_pay = Column(BOOLEAN(), nullable=False)
-    is_contact = Column(BOOLEAN(), nullable=False)
+    is_pay = Column(BIT(), nullable=False)
+    is_contact = Column(BIT(), nullable=False)
     nominal_account = Column(Integer, nullable=False)
-    is_assessing = Column(BOOLEAN())
-    is_assignment = Column(BOOLEAN())
-    is_taught = Column(BOOLEAN())
+    is_assessing = Column(BIT())
+    is_assignment = Column(BIT())
+    is_taught = Column(BIT())
 
 
 class CostTypePay(Base):
     __tablename__ = 'cost_type_pay'
 
-    is_pay = Column(BOOLEAN(), primary_key=True)
+    is_pay = Column(BIT(), primary_key=True)
     description = Column(String(30), nullable=False)
 
 
@@ -159,7 +160,7 @@ class Costc(Base):
     costc = Column(CHAR(6), primary_key=True)
     description = Column(String(50), nullable=False)
     department = Column(String(50))
-    pathway = Column(BOOLEAN(), nullable=False)
+    pathway = Column(BIT(), nullable=False)
     primary_aos_code = Column(CHAR(6))
     directorate_id = Column(CHAR(1))
 
@@ -217,7 +218,7 @@ class RoomType(Base):
 
     room_type = Column(String(20), primary_key=True)
     average_sq_metre = Column(Integer, server_default=text("(NULL)"))
-    on_campus = Column(BOOLEAN())
+    on_campus = Column(BIT())
 
 
 class SNOriginConfig(Base):
@@ -234,7 +235,7 @@ class SNUsage(Base):
 
     usage_id = Column(String(20), primary_key=True)
     description = Column(String(200))
-    surpress_all = Column(BOOLEAN(), server_default=text("((0))"))
+    surpress_all = Column(BIT(), server_default=text("((0))"))
     set_cat_id = Column(CHAR(3))
 
 
@@ -248,7 +249,7 @@ class Audit(Base):
     group_id = Column(Integer)
     staff_id = Column(String(50))
     student_id = Column(CHAR(11))
-    actioned = Column(BOOLEAN(), server_default=text("((0))"))
+    actioned = Column(BIT(), server_default=text("((0))"))
     audit_id = Column(Integer, primary_key=True)
 
 
@@ -270,10 +271,10 @@ class Change(Base):
     description = Column(
         String(8000), nullable=False)
     progress = Column(String(8000))
-    closed = Column(BOOLEAN(), nullable=False, server_default=text("((0))"))
+    closed = Column(BIT(), nullable=False, server_default=text("((0))"))
     closed_date = Column(Date)
     closed_version = Column(NCHAR(10))
-    suspend = Column(BOOLEAN(), server_default=text("((0))"))
+    suspend = Column(BIT(), server_default=text("((0))"))
 
 
 class Instrument(Base):
@@ -287,7 +288,7 @@ class Stage(Base):
     __tablename__ = 'tt_stage'
 
     stage = Column(String(50), primary_key=True)
-    is_pending = Column(BOOLEAN(), nullable=False)
+    is_pending = Column(BIT(), nullable=False)
 
 
 ql_student = Table(
@@ -346,14 +347,14 @@ class Curriculum(Base):
     created_date = Column(DateTime, nullable=False)
     acad_year = Column(Integer, nullable=False)
     usage_id = Column(ForeignKey('student_number_usage.usage_id'))
-    can_edit = Column(BOOLEAN(), server_default=text("((1))"))
+    can_edit = Column(BIT(), server_default=text("((1))"))
 
 
 class Course(Base):
     __tablename__ = "course"
 
     course_id = Column(Integer, primary_key=True)
-    aos_code = Column(ForeignKey("aos_code.aos_code"))
+    aos_code = Column(CHAR(6), ForeignKey("aos_code.aos_code"))
     pathway = Column(String(50), nullable=False)
     combined_with = Column(String(50))
     award = Column(String(10))
@@ -385,7 +386,7 @@ class SNInstance(Base):
         'student_number_usage.usage_id'), nullable=False)
     input_datetime = Column(DateTime, server_default=text("(getdate())"))
     lcom_username = Column(String(50))
-    surpress = Column(BOOLEAN(), nullable=False, server_default=text("((0))"))
+    surpress = Column(BIT(), nullable=False, server_default=text("((0))"))
     costc = Column(ForeignKey('costc.costc'))
 
 
@@ -420,7 +421,7 @@ class Component(Base):
     description = Column(Unicode(200), nullable=False)
     module_code = Column(String(9))
     calendar_type = Column(ForeignKey('calendar.calendar_type'), nullable=False)
-    coordination_eligible = Column(BOOLEAN(), nullable=False)
+    coordination_eligible = Column(BIT(), nullable=False)
     hecos = Column(ForeignKey('hecos_code.hecos'))
     staffing_band = Column(Integer)
     curriculum_id = Column(ForeignKey('curriculum.curriculum_id'))
@@ -517,3 +518,21 @@ class CourseSessionConfig(Base):
                                primary_key=True, nullable=False)
     cgroup_id = Column(Integer(), ForeignKey('cgroup.cgroup_id'),
                        primary_key=True, nullable=False)
+
+
+# Docstring enhance
+for model in Base._decl_class_registry.values():
+    if hasattr(model, '__tablename__') and model.__doc__ is not None:
+        # Add the table name to the docstring
+        additional_str = f"Actual table name: ``{model.__tablename__}``\r \r"
+        model.__doc__ = additional_str + model.__doc__
+        # Mark Primary key columns in the docstring
+        for col in model.__table__.columns:
+            if col.primary_key:
+                attributepos = model.__doc__.find(
+                    col.key, model.__doc__.find("Attribute"))
+                splitpoint = model.__doc__.find(
+                    '\n', attributepos)
+                pre, post = model.__doc__[:splitpoint], \
+                    model.__doc__[splitpoint:]
+                model.__doc__ = pre + ' [**PK**]' + post
