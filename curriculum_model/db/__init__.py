@@ -34,13 +34,13 @@ class DB():
     ----------
     uri : str
         SQLAlchemy connection string. 
-    verbose : boolean 
+    echo : boolean 
         Whether or not to output instructions sent to DB. 
     config_section : str
         Name of the section in the config file. 
     """
 
-    def __init__(self, verbose=False, config_section="PRODUCTION", config_name='local_config.ini'):
+    def __init__(self, echo=False, config_section="PRODUCTION", config_name='local_config.ini'):
         fldr = resource_path(os.path.dirname(
             os.path.dirname(os.path.dirname(__file__))))
         self._config_file = os.path.join(fldr, config_name)
@@ -51,10 +51,10 @@ class DB():
             self.uri = self._cp[config_section]['uri']
         except KeyError:
             raise FileNotFoundError("Local config file not found.")
-        self.verbose = verbose
+        self.echo = echo
 
     def __enter__(self):
-        self.engine = sqlalchemy.create_engine(self.uri, echo=self.verbose)
+        self.engine = sqlalchemy.create_engine(self.uri, echo=self.echo)
         self._sfactory = sqlalchemy.orm.sessionmaker(bind=self.engine)
         self.con = self.engine.connect()
         if self.test_mode:

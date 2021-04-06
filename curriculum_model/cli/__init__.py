@@ -7,8 +7,9 @@ from curriculum_model._version import __version__ as v
 
 class Config(object):
 
-    def __init__(self, verbose=False, environment='PRODUCTION'):
+    def __init__(self, verbose=False, echo=FALSE, environment='PRODUCTION'):
         self.verbose = verbose
+        self.echo = echo
         self.environment = environment.upper()
 
     def verbose_print(self, str, bold=False):
@@ -44,19 +45,17 @@ def add_subcommands(parent, file, package):
 
 
 @click.group(invoke_without_command=True)
-@click.option("--verbose", is_flag=True, help="Output more information to the console.")
-@click.option("--dbenv", type=str, help="Specify a DB environment (must correspond to section in config).", default="PRODUCTION")
+@click.option("--verbose", "-v", is_flag=True, help="Print more information to the console.")
+@click.option("--echo", "-e", is_flag=True, help="Print SQL run against database.")
+@click.option("--dbenv", "-d", type=str, help="Specify a DB environment (must correspond to section in config).", default="PRODUCTION")
 @click.pass_context
-def cm(config, verbose, dbenv):
+def cm(config, verbose, dbenv, echo):
     """
     Entry point for the CLI.
     """
     # Define config object to be passed to subcommands via click.pass_obj
-    config.obj = Config(verbose, dbenv)
+    config.obj = Config(verbose, echo, dbenv)
     config.obj.verbose_print(f"Running Curriculum Model {v} CLI", True)
 
 
 add_subcommands(cm, __file__, __package__)
-
-if __name__ == '__main__':
-    cm(['--verbose', 'copy', 'component', 7537, 4449])
