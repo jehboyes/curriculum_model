@@ -27,10 +27,9 @@ def dependency_chain(key_only=False):
 @click.argument("obj_name", type=click.Choice(dependency_chain(True)))
 @click.argument("obj_id", type=int)
 @click.argument("parent_id", type=int)
-@click.option("--recursive", "-r", is_flag=True, help="Include children of the object being moved.")
-@click.option("--move", "-m", is_flag=True, help="Delete the original file after copying.")
+# @click.option("--move", "-m", is_flag=True, help="Delete the original file after copying.")
 @click.pass_obj
-def copy(config, obj_name, obj_id, parent_id, recursive, move):
+def copy(config, obj_name, obj_id, parent_id):
     config.verbose_print(
         f"Attempting to {'move' if move else 'copy'} {obj_name} with id {obj_id} {'and its sub-objects ' if recursive else ''}to parent with id {parent_id}.")
     dc = dependency_chain(False)
@@ -39,7 +38,7 @@ def copy(config, obj_name, obj_id, parent_id, recursive, move):
     parent_name = dc[dc.index(obj_name)-1]
     parent_class = tm[parent_name]
     # open connection
-    with DB(config.verbose, config.environment) as db:
+    with DB(config.echo, config.environment) as db:
         session = db.session()
         # If the parent doesn't have a curriculum id then it's a config, so go one step further to get curriculum id
         if not hasattr(parent_class.__table__.columns, "curriculum_id"):
