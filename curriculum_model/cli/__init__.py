@@ -7,7 +7,7 @@ from curriculum_model._version import __version__ as v
 
 class Config(object):
 
-    def __init__(self, verbose=False, echo=FALSE, environment='PRODUCTION'):
+    def __init__(self, verbose=False, echo=False, environment='PRODUCTION'):
         self.verbose = verbose
         self.echo = echo
         self.environment = environment.upper()
