@@ -31,7 +31,7 @@ def dependency_chain(key_only=False):
 @click.pass_obj
 def copy(config, obj_name, obj_id, parent_id):
     config.verbose_print(
-        f"Attempting to {'move' if move else 'copy'} {obj_name} with id {obj_id} {'and its sub-objects ' if recursive else ''}to parent with id {parent_id}.")
+        f"Attempting to copy {obj_name} with id {obj_id} and its sub-objects to parent with id {parent_id}.")
     dc = dependency_chain(False)
     tm = table_map(Base)
     # Get the type of object the parent is
@@ -56,14 +56,15 @@ def copy(config, obj_name, obj_id, parent_id):
         obj_class = tm[obj_name]
         obj = session.query(obj_class).get(obj_id)
         _recursive_copy(session, curriculum_id, parent_obj,
-                        obj, tm, dc, config)
+                        obj, tm, dc, config, 0)
         if click.confirm("Commit changes?"):
             session.commit()
         else:
             session.rollback()
 
 
-def _recursive_copy(session, curriculum_id, parent_obj, child_obj, tm, dc, config):
+def _recursive_copy(session, curriculum_id, parent_obj, child_obj, tm, dc, config, indent_level):
+    indent = indent_level*"\t "
     # Columns to copy
     tbl = child_obj.__table__
     cols = [c for c in tbl.columns.keys() if c not in tbl.primary_key]
@@ -86,13 +87,13 @@ def _recursive_copy(session, curriculum_id, parent_obj, child_obj, tm, dc, confi
     new_child_obj = child_obj.__class__(**data)
     session.add(new_child_obj)
     session.flush()
-    config.verbose_print(f"Created {child_obj.__tablename__} " +
+    config.verbose_print(f"{indent}Created {child_obj.__tablename__} " +
                          f"with ID {getattr(new_child_obj, child_pk_name)}")
 
     # add config_entry if a config exists between parent and child
     if abs(dc.index(parent_obj.__tablename__) - dc.index(new_child_obj.__tablename__)) == 2:
         config.verbose_print(
-            f"Creating config link for {parent_obj.__tablename__}.")
+            f"{indent}Creating config link for {parent_obj.__tablename__}.")
         config_class = tm[parent_obj.__tablename__ + '_config']
         new_conf_values = {parent_pk_name: getattr(parent_obj, parent_pk_name),
                            child_pk_name: getattr(new_child_obj, child_pk_name)}
@@ -103,11 +104,10 @@ def _recursive_copy(session, curriculum_id, parent_obj, child_obj, tm, dc, confi
     dc_pos = dc.index(child_obj.__tablename__)
     if dc_pos == len(dc)-1:
         # Reached final object, stop recurse
-        config.verbose_print("No children, recursion stop")
         return
     grandchild_name = dc[dc_pos+1]
     if grandchild_name[-6:] == "config":
-        config.verbose_print("Detected config link")
+        config.verbose_print(f"{indent}Detected config link")
         # get grandchildren using config
         config_class = tm[grandchild_name]
         grandchild_name = dc[dc.index(grandchild_name)+1]
@@ -118,7 +118,7 @@ def _recursive_copy(session, curriculum_id, parent_obj, child_obj, tm, dc, confi
             .filter(getattr(config_class, child_pk_name)
                     == getattr(child_obj, child_pk_name))
     else:
-        config.verbose_print("Detected direct link")
+        config.verbose_print(f"{indent}Detected direct link")
         grandchild_class = tm[grandchild_name]
         grandchild_pk_col_name = list(
             grandchild_class.__table__.primary_key)[0].name
@@ -135,4 +135,4 @@ def _recursive_copy(session, curriculum_id, parent_obj, child_obj, tm, dc, confi
                         new_child_obj,
                         grandchild_obj,
                         tm,
-                        dc, config)
+                        dc, config, indent_level+1)
