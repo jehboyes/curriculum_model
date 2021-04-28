@@ -20,6 +20,20 @@ class TestSchema(unittest.TestCase):
         from curriculum_model.db.schema import views
 
 
+class TestDocs(unittest.TestCase):
+
+    def test_docs(self):
+        """
+        Checks the schema is valid
+        """
+        self.engine = create_engine("sqlite:///:memory:", echo=False)
+        Session = sessionmaker(bind=self.engine)
+        self.session = Session()
+        schema.Base.metadata.create_all(self.engine)
+        from curriculum_model.db.schema import Course
+        self.assertIn("Attributes", Course.__doc__)
+
+
 class TestTables(unittest.TestCase):
 
     @classmethod
@@ -44,10 +58,10 @@ class TestTables(unittest.TestCase):
         test_course = schema.Course(course_id=1,
                                     pathway="Jazz",
                                     curriculum_id=1)
-        inserted_course = insert_query(self.session, test_course, schema.Course)
+        inserted_course = insert_query(
+            self.session, test_course, schema.Course)
         self.assertEqual(inserted_course, test_course)
         setattr(test_course, "curriculum_id", 2)
-        print(test_course)
         self.session.add(test_course)
 
 
